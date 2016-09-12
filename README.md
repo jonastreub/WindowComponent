@@ -2,7 +2,7 @@
 
 Allows for quick and easy creation of Mac and Browser windows. Ideal for making responsive designs.
 
-Note: be sure not to use `window` and `document` as variable names as these names are reserved and break your prototype.
+Note: be sure not to use `window` and `document` as variable names. These names are reserved and will break your prototype.
 
 ## Example
 
