@@ -6,7 +6,8 @@ Note: be sure not to use `window` and `document` as variable names. These names 
 
 ## Example
 
-- [Mac Desktop](http://share.framerjs.com/x4681kxzyizk/)
+- [Mac Desktop Simple](http://share.framerjs.com/x4681kxzyizk/)
+- [Mac Desktop](http://share.framerjs.com/0a0m12dn3fwu/)
 
 ## Properties
 
