@@ -11,6 +11,7 @@ Note: be sure not to use `window` and `document` as variable names. These names 
 
 ## Properties
 
+- **`resizable`** *\<bool>*
 - **`minWidth`** *\<number>*
 - **`minHeight`** *\<number>*
 - **`toolbarHeight`** *\<number>*

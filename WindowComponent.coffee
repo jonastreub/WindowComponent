@@ -1,6 +1,7 @@
 """
 WindowComponent
 
+resizable 	  <bool>
 minWidth 	  <number>
 minHeight 	  <number>
 toolbarHeight <number>
@@ -8,6 +9,8 @@ topConstraint <number>
 
 onResize (window, content<layer>) ->
 """
+
+Utils.domComplete -> document.body.style.cursor = "auto"
 
 class DocumentWindowConstants
 	@onResize = "onResize"
@@ -23,6 +26,7 @@ class exports.WindowComponent extends Layer
 			minWidth: 200
 			minHeight: 200
 			toolbarHeight: 36
+			resizable: true
 			backgroundColor: null
 			shadowY: 10
 			shadowBlur: 25
@@ -145,11 +149,14 @@ class exports.WindowComponent extends Layer
 			do (resizeLayer) =>
 			
 				resizeLayer.onMouseMove (e) =>
+					return unless @resizable
 					document.body.style.cursor = resizeLayer.custom.cursor unless @_state?
 				resizeLayer.onMouseOut (e) =>
+					return unless @resizable
 					document.body.style.cursor = "auto" unless @_state?
 				
 				resizeLayer.onPanStart (e) =>
+					return unless @resizable
 					@_state = resizeLayer.custom.cursor
 					document.body.style.cursor = @_state
 					@_windowStartPoint = @point
@@ -157,10 +164,12 @@ class exports.WindowComponent extends Layer
 					@_windowStartSize = @size
 				
 				resizeLayer.onPanEnd (e) =>
+					return unless @resizable
 					@_state = null
 					document.body.style.cursor = "auto"
 				
 				resizeLayer.onPan (e) =>
+					return unless @resizable
 					panPoint = Canvas.convertPointToScreen({x: e.pageX, y: e.pageY})
 					panOffset = Utils.pointSubtract(@_panStartPoint, panPoint)
 					
@@ -184,6 +193,12 @@ class exports.WindowComponent extends Layer
 					if bottom
 						@height = Math.max(@_windowStartSize.height - panOffset.y, @minHeight)
 	
+	@define "resizable",
+		get: -> return @_resizable
+		set: (value) ->
+			return unless _.isBoolean(value)
+			@_resizable = value
+
 	@define "toolbarHeight",
 		get: -> return @_toolbarHeight
 		set: (value) ->
