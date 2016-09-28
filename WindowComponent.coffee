@@ -130,7 +130,8 @@ class exports.WindowComponent extends Layer
 			@point = windowPoint
 	
 	_makeResizable: =>
-		cursors = ["nwse-resize", "ns-resize", "nesw-resize", "ew-resize"]
+		cursors = ["nwse-resize", "ns-resize", "nesw-resize", "ew-resize", "", "ew-resize", "nesw-resize", "ns-resize", "nwse-resize"]
+		minSizeCursors = ["nw-resize", "n-resize", "ne-resize", "w-resize", "", "e-resize", "sw-resize", "s-resize", "se-resize"]
 		@_resizeLayers = []
 	
 		for resizingIndex in [0...9]
@@ -142,15 +143,31 @@ class exports.WindowComponent extends Layer
 				backgroundColor: null
 			resizeLayer.resizingIndex = resizingIndex
 			cursorIndex = resizingIndex
-			cursorIndex = 8 - resizingIndex if resizingIndex > 4
-			resizeLayer.custom = cursor: cursors[cursorIndex]
+			resizeLayer.custom =
+				cursor: cursors[cursorIndex]
+				minCursor: minSizeCursors[cursorIndex]
 			@_resizeLayers.push(resizeLayer)
 			
 			do (resizeLayer) =>
 			
 				resizeLayer.onMouseMove (e) =>
 					return unless @resizable
-					document.body.style.cursor = resizeLayer.custom.cursor unless @_state?
+					return if @_state?
+					document.body.style.cursor = resizeLayer.custom.cursor
+
+					corner = resizeLayer.resizingIndex % 2 is 0
+					left = resizeLayer.resizingIndex % 3 is 0
+					right = (resizeLayer.resizingIndex - 2) % 3 is 0
+					top = resizeLayer.resizingIndex < 3
+					bottom = resizeLayer.resizingIndex > 5
+
+					if corner
+						document.body.style.cursor = resizeLayer.custom.minCursor if @width is @minWidth and @height is @minHeight
+					else if left or right
+						document.body.style.cursor = resizeLayer.custom.minCursor if @width is @minWidth
+					else if right or bottom
+						document.body.style.cursor = resizeLayer.custom.minCursor if @height is @minHeight
+
 				resizeLayer.onMouseOut (e) =>
 					return unless @resizable
 					document.body.style.cursor = "auto" unless @_state?
@@ -176,22 +193,31 @@ class exports.WindowComponent extends Layer
 					maxX = @maxX - @minWidth
 					maxY = @maxY - @minHeight
 					
+					corner = resizeLayer.resizingIndex % 2 is 0
 					left = resizeLayer.resizingIndex % 3 is 0
 					right = (resizeLayer.resizingIndex - 2) % 3 is 0
 					top = resizeLayer.resizingIndex < 3
 					bottom = resizeLayer.resizingIndex > 5
 					
+					document.body.style.cursor = resizeLayer.custom.cursor
+
 					if left
 						@x = Math.min(maxX, @_windowStartPoint.x - panOffset.x)
 						@width = Math.max(@_windowStartSize.width + panOffset.x, @minWidth)
+						document.body.style.cursor = resizeLayer.custom.minCursor if @width is @minWidth and not corner
 					if right
 						@width = Math.max(@_windowStartSize.width - panOffset.x, @minWidth)
+						document.body.style.cursor = resizeLayer.custom.minCursor if @width is @minWidth and not corner
 					if top
 						maxHeight = @.maxY - @topConstraint
 						@y = Math.max(@topConstraint, Math.min(maxY, @_windowStartPoint.y - panOffset.y))
-						@height = Math.min(maxHeight ,Math.max(@_windowStartSize.height + panOffset.y, @minHeight))
+						@height = Math.min(maxHeight, Math.max(@_windowStartSize.height + panOffset.y, @minHeight))
+						document.body.style.cursor = resizeLayer.custom.minCursor if @height is @minHeight and not corner
 					if bottom
 						@height = Math.max(@_windowStartSize.height - panOffset.y, @minHeight)
+						document.body.style.cursor = resizeLayer.custom.minCursor if @height is @minHeight and not corner
+					if corner
+						document.body.style.cursor = resizeLayer.custom.minCursor if @height is @minHeight and @width is @minWidth
 	
 	@define "resizable",
 		get: -> return @_resizable
